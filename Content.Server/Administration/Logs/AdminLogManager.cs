@@ -460,6 +460,9 @@ public sealed partial class AdminLogManager : SharedAdminLogManager, IAdminLogMa
         var logMessage = message;
         var playerNetEnts = new List<(NetEntity, string)>();
 
+        if (impact == LogImpact.Extreme) // Always chat-notify Extreme logs
+            adminLog = true;
+
         foreach (var player in players)
         {
             var id = player.PlayerUserId;
@@ -483,9 +486,6 @@ public sealed partial class AdminLogManager : SharedAdminLogManager, IAdminLogMa
 
             if (adminLog)
                 continue;
-
-            if (impact == LogImpact.Extreme) // Always chat-notify Extreme logs
-                adminLog = true;
 
             if (impact == LogImpact.High) // Only chat-notify High logs if the player is below a threshold playtime
             {

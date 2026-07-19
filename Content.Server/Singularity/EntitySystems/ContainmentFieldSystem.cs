@@ -3,6 +3,7 @@ using Content.Server.Singularity.Events;
 using Content.Shared.Shuttles.Components;
 using Content.Shared.Popups;
 using Content.Shared.Singularity.Components;
+using Content.Shared.Singularity.Events;
 using Content.Shared.Throwing;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Events;
@@ -21,6 +22,7 @@ public sealed partial class ContainmentFieldSystem : EntitySystem
 
         SubscribeLocalEvent<ContainmentFieldComponent, StartCollideEvent>(HandleFieldCollide);
         SubscribeLocalEvent<ContainmentFieldComponent, EventHorizonAttemptConsumeEntityEvent>(HandleEventHorizon);
+        SubscribeLocalEvent<ContainmentFieldComponent, ComponentShutdown>(OnComponentShutdown);
     }
 
     private void HandleFieldCollide(EntityUid uid, ContainmentFieldComponent component, ref StartCollideEvent args)
@@ -46,5 +48,10 @@ public sealed partial class ContainmentFieldSystem : EntitySystem
     {
         if(!args.Cancelled && !args.EventHorizon.CanBreachContainment)
             args.Cancelled = true;
+    }
+
+    private void OnComponentShutdown(EntityUid uid, ContainmentFieldComponent component, ComponentShutdown args)
+    {
+        RaiseLocalEvent(uid, new ContainmentShutdownEvent(), broadcast: true);
     }
 }
