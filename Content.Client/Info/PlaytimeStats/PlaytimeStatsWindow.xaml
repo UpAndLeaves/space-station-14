@@ -7,6 +7,7 @@
                 SetSize="600 400">
     <Control>
         <BoxContainer Name="statsBox" Orientation="Vertical" Margin="10,10,10,10">
+            <Button Name="ExportButton" Text="{Loc 'humanoid-profile-editor-export-button'}"/>
 
             <!-- Overall Playtime -->
             <Label Name="OverallPlaytimeLabel" HorizontalExpand="True" Text="{Loc ui-playtime-overall-base}" />
