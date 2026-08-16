@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Database;
+using Content.Shared.Administration;
 using Content.Shared.CCVar;
 using Content.Shared.Players.PlayTimeTracking;
 using Robust.Shared.Asynchronous;
@@ -200,7 +201,7 @@ public sealed partial class PlayTimeTrackingManager : ISharedPlaytimeManager, IP
         // Flush active trackers into semi-permanent storage.
         foreach (var active in data.ActiveTrackers)
         {
-            AddTimeToTracker(data, active, delta);
+            UpdateTimeToTracker(data, active, delta, PlaytimeUpdateType.Add);
         }
     }
 
@@ -334,25 +335,49 @@ public sealed partial class PlayTimeTrackingManager : ISharedPlaytimeManager, IP
         _playTimeData.Remove(session);
     }
 
+    public void UpdateTimeToTracker(ICommonSession id, string tracker, TimeSpan time, PlaytimeUpdateType updateType)
+    {
+        if (!_playTimeData.TryGetValue(id, out var data) || !data.Initialized)
+            throw new InvalidOperationException("Play time info is not yet loaded for this player!");
+
+        UpdateTimeToTracker(data, tracker, time, updateType);
+    }
+
     public void AddTimeToTracker(ICommonSession id, string tracker, TimeSpan time)
     {
         if (!_playTimeData.TryGetValue(id, out var data) || !data.Initialized)
             throw new InvalidOperationException("Play time info is not yet loaded for this player!");
 
-        AddTimeToTracker(data, tracker, time);
+        UpdateTimeToTracker(data, tracker, time, PlaytimeUpdateType.Add);
     }
 
-    private static void AddTimeToTracker(PlayTimeData data, string tracker, TimeSpan time)
+    private static void UpdateTimeToTracker(PlayTimeData data, string tracker, TimeSpan time, PlaytimeUpdateType updateType)
     {
         ref var timer = ref CollectionsMarshal.GetValueRefOrAddDefault(data.TrackerTimes, tracker, out _);
-        timer += time;
+        switch (updateType)
+        {
+            case PlaytimeUpdateType.Add:
+                timer += time;
+                break;
+            case PlaytimeUpdateType.Set:
+                timer = time;
+                break;
+            case PlaytimeUpdateType.SetMinimum:
+                timer = TimeSpan.FromSeconds(Math.Max(time.TotalSeconds, timer.TotalSeconds));
+                break;
+        }
 
         data.DbTrackersDirty.Add(tracker);
     }
 
     public void AddTimeToOverallPlaytime(ICommonSession id, TimeSpan time)
     {
-        AddTimeToTracker(id, PlayTimeTrackingShared.TrackerOverall, time);
+        UpdateTimeToTracker(id, PlayTimeTrackingShared.TrackerOverall, time,  PlaytimeUpdateType.Add);
+    }
+
+    public void UpdateTimeToOverallPlaytime(ICommonSession id, TimeSpan time, PlaytimeUpdateType updateType)
+    {
+        UpdateTimeToTracker(id, PlayTimeTrackingShared.TrackerOverall, time, updateType);
     }
 
     public TimeSpan GetOverallPlaytime(ICommonSession id)

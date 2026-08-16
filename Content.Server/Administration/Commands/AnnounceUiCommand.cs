@@ -21,7 +21,7 @@ namespace Content.Server.Administration.Commands
                 return;
             }
 
-            var ui = new AdminAnnounceEui();
+            var ui = new PlaytimesManagerEui();
             _euiManager.OpenEui(ui, player);
         }
     }

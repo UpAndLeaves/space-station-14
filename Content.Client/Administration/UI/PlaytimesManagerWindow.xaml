@@ -1,0 +1,12 @@
+<DefaultWindow
+    xmlns="https://spacestation14.io"
+    Title="{Loc admin-announce-title}"
+    MinWidth="500">
+    <GridContainer Columns="1">
+
+        <GridContainer Rows="1">
+            <OptionButton Name="UpdateType" Access="Public"/>
+            <Button Name="ImportButton" Access="Public" Text="{Loc playtimes-manager-import-button}" HorizontalAlignment="Center"/>
+        </GridContainer>
+    </GridContainer>
+</DefaultWindow>

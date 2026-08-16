@@ -28,7 +28,7 @@ public sealed class EuiManagerTest : GameTest
         await server.WaitAssertion(() =>
         {
             var clientSession = sPlayerManager.Sessions.Single();
-            var ui = new AdminAnnounceEui();
+            var ui = new PlaytimesManagerEui();
             eui.OpenEui(ui, clientSession);
         });
 

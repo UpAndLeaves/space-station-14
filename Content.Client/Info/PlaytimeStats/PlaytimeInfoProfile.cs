@@ -1,3 +1,4 @@
+using Robust.Shared.Network;
 using Robust.Shared.Serialization;
 
 namespace Content.Client.Info.PlaytimeStats;
@@ -13,12 +14,16 @@ public sealed partial class PlaytimeInfoProfile
     public TimeSpan OverallPlaytime = TimeSpan.Zero;
 
     [DataField]
-    public IEnumerable<KeyValuePair<string, TimeSpan>> RolesPlaytimeList = [];
+    public Dictionary<string, TimeSpan> RolesPlaytimeList;
 
-    public PlaytimeInfoProfile(string forkID, TimeSpan overallPlaytime, IEnumerable<KeyValuePair<string, TimeSpan>>  rolePlaytimes)
+    [DataField]
+    public NetUserId PlayerID;
+
+    public PlaytimeInfoProfile(string forkID, TimeSpan overallPlaytime, Dictionary<string, TimeSpan>  rolePlaytimes, NetUserId playerID)
     {
         ForkID = forkID;
         OverallPlaytime = overallPlaytime;
         RolesPlaytimeList = rolePlaytimes;
+        PlayerID = playerID;
     }
 }
